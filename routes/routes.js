@@ -58,6 +58,7 @@ module.exports = function(app) {
           req.logIn(user, (err) => {
             if (err) throw err;
             res.send("Successfully Authenticated");
+            // res.send(req.user);
             console.log(req.user);
           });
         }
@@ -80,6 +81,14 @@ module.exports = function(app) {
     });
     app.get('/user', (req, res) => {
         console.log(req.user)
-        res.send(req.user);
+        if (req.user) {
+            res.send(req.user);
+        } else {
+            res.send({loggedOut: true});
+        }
+    });
+    app.get("/logout", (req, res) => {
+      req.logout();
+      res.send({loggedOut: true});
     });
 };
