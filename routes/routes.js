@@ -51,27 +51,33 @@ module.exports = function(app) {
     });
 
     app.post("/login", (req, res, next) => {
-      passport.authenticate("local", (err, user, info) => {
-        if (err) throw err;
-        if (!user) res.send("No User Exists");
-        else {
-          req.logIn(user, (err) => {
+        passport.authenticate("local", (err, user, info) => {
             if (err) throw err;
-            res.send("Successfully Authenticated");
-            // res.send(req.user);
-            console.log(req.user);
-          });
-        }
-      })(req, res, next);
+            if (!user) res.send("No User Exists");
+            else {
+                req.logIn(user, (err) => {
+                    if (err) throw err;
+                    res.send("Successfully Authenticated");
+                    // res.send(req.user);
+                    console.log(req.user);
+                });
+            }
+        })(req, res, next);
     });
     app.post('/register', (req, res) => {
-        User.findOne({username : req.body.username}, async (err, doc) => {
+        User.findOne({email : req.body.email}, async (err, doc) => {
             if (err) throw err;
             if (doc) res.send('User already exists');
             if (!doc) {
                 const hashedPassword = await bcrypt.hash(req.body.password, 10);
+                // const newUser = new User({
+                //     username: req.body.username,
+                //     password: hashedPassword
+                // });
                 const newUser = new User({
-                    username: req.body.username,
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    email: req.body.email,
                     password: hashedPassword
                 });
                 await newUser.save();
