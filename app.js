@@ -10,9 +10,6 @@ const passportLocal = require('passport-local').Strategy;
 // const bcrypt = require('bcryptjs');
 const session = require('express-session');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
 var app = express();
 
 require('dotenv').config();
@@ -50,10 +47,9 @@ require('./auth/passport-config')(passport);
 
 
 // ------------------- ROUTES ---------------------------
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
-require('./routes/routes')(app);
+require('./routes/coffee')(app);
+require('./routes/users')(app);
 
 
 // ------------------- EXPORT ---------------------------
