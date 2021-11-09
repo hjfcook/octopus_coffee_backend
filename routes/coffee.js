@@ -1,7 +1,8 @@
 const Coffee = require('../models/coffee');
+const isAdmin = require('../middleware/isAdmin');
 
 module.exports = function(app) {
-    app.post('/api/coffee', (req, res) => {
+    app.post('/api/coffee', isAdmin, (req, res) => {
         const name = req.body.name;
         const continent = req.body.continent;
         const country = req.body.country;
@@ -47,7 +48,7 @@ module.exports = function(app) {
         });
     });
 
-    app.put('/api/coffee/:id', (req, res) => {
+    app.put('/api/coffee/:id', isAdmin, (req, res) => {
         const id = req.params.id;
         const name = req.body.name;
         const continent = req.body.continent;
@@ -77,7 +78,7 @@ module.exports = function(app) {
         });
     });
 
-    app.delete('/api/coffee/:id', (req, res) => {
+    app.delete('/api/coffee/:id', isAdmin, (req, res) => {
         const id = req.params.id;
         Coffee.findByIdAndDelete(id, (err, coffee) => {
             if (err) return console.error(err);
