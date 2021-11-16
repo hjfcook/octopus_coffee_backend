@@ -12,7 +12,7 @@ module.exports = function(app) {
                     if (err) throw err;
                     res.send("Successfully Authenticated");
                     // res.send(req.user);
-                    console.log(req.user);
+                    // console.log(req.user);
                 });
             }
         })(req, res, next);

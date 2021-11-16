@@ -9,10 +9,20 @@ module.exports = function isAdmin(req, res, next) {
         next();
       }
       else {
-        res.send({rejection: 'Only admins can perform this action'});
+        res.status(403).send({
+          status: "fail",
+          data: {
+            user: 'Current user does not have admin permissions'
+          }
+        });
       }
     });
   } else {
-    res.send({rejection: 'No user is currently logged in'});
+    res.status(401).send({
+      status: "fail",
+      data: {
+        user: 'No user is currently logged in'
+      }
+    });
   }
 };

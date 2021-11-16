@@ -21,13 +21,15 @@ mongoose.connect(
         useUnifiedTopology: true
     },
     () => {
-        console.log('Connected to database');
+        // console.log('Connected to database');
     }
 );
 
 
 // ----------------- MIDDLEWARE -------------------------
-app.use(logger('dev'));
+if (process.env.NODE_ENV !== 'test') {
+    app.use(logger('dev'));
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

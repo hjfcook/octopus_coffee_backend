@@ -1,32 +1,16 @@
 const Coffee = require('../models/coffee');
 const isAdmin = require('../middleware/isAdmin');
+const coffeeValidation = require('../middleware/coffeeValidation');
 
 module.exports = function(app) {
-    app.post('/api/coffee', isAdmin, (req, res) => {
-        const name = req.body.name;
-        const continent = req.body.continent;
-        const country = req.body.country;
-        const process = req.body.process;
-        const price = req.body.price;
-        const roast = req.body.roast;
-        const description = req.body.description;
-        const descriptor1 = req.body.descriptor1;
-        const descriptor2 = req.body.descriptor2;
-        const descriptor3 = req.body.descriptor3;
-        const coffeeObject = {
-            name: name,
-            continent: continent,
-            country: country,
-            process: process,
-            price: price,
-            roast: roast,
-            description: description,
-            descriptors: [descriptor1, descriptor2, descriptor3]
-        };
-        const newCoffee = Coffee(coffeeObject);
+    app.post('/api/coffee', isAdmin, coffeeValidation, (req, res) => {
+        const newCoffee = Coffee(req.coffeeObject);
         newCoffee.save((err, coffee) => {
-            if (err) return console.error(err);
-            res.send(coffeeObject);
+            if (err) throw err;
+            res.send({
+              status: "success",
+              data: coffee
+            });
         });
     });
 
