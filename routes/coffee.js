@@ -15,6 +15,7 @@ module.exports = function(app) {
     });
 
     app.get('/api/coffee', (req, res) => {
+        console.log(req.body);
         Coffee.find({}, (err, coffees) => {
             if (err) return console.error(err);
             coffeeList = coffees.map(coffee => ({
@@ -32,33 +33,40 @@ module.exports = function(app) {
         });
     });
 
-    app.put('/api/coffee/:id', isAdmin, (req, res) => {
+    app.put('/api/coffee/:id', isAdmin, coffeeValidation, (req, res) => {
         const id = req.params.id;
-        const name = req.body.name;
-        const continent = req.body.continent;
-        const country = req.body.country;
-        const process = req.body.process;
-        const price = req.body.price;
-        const roast = req.body.roast;
-        const description = req.body.description;
-        const descriptor1 = req.body.descriptor1;
-        const descriptor2 = req.body.descriptor2;
-        const descriptor3 = req.body.descriptor3;
-        const coffeeObject = {
-            name: name,
-            continent: continent,
-            country: country,
-            process: process,
-            price: price,
-            roast: roast,
-            description: description,
-            descriptors: [descriptor1, descriptor2, descriptor3]
-        };
-        Coffee.findByIdAndUpdate(id, coffeeObject, {new: true}, (err, coffee) => {
+        // const name = req.body.name;
+        // const continent = req.body.continent;
+        // const country = req.body.country;
+        // const process = req.body.process;
+        // const price = req.body.price;
+        // const roast = req.body.roast;
+        // const description = req.body.description;
+        // const descriptor1 = req.body.descriptor1;
+        // const descriptor2 = req.body.descriptor2;
+        // const descriptor3 = req.body.descriptor3;
+        // const coffeeObject = {
+        //     name: name,
+        //     continent: continent,
+        //     country: country,
+        //     process: process,
+        //     price: price,
+        //     roast: roast,
+        //     description: description,
+        //     descriptors: [descriptor1, descriptor2, descriptor3]
+        // };
+        // Coffee.findByIdAndUpdate(id, coffeeObject, {new: true}, (err, coffee) => {
+        //     if (err) return console.error(err);
+        //     // if (err || !coffee) return console.error(err);
+        //     // res.send(coffeeObject);
+        //     res.send(coffee);
+        // });
+        Coffee.findByIdAndUpdate(id, req.coffeeObject, {new: true}, (err, coffee) => {
             if (err) return console.error(err);
-            // if (err || !coffee) return console.error(err);
-            // res.send(coffeeObject);
-            res.send(coffee);
+            res.send({
+              status: "success",
+              data: coffee
+            });
         });
     });
 

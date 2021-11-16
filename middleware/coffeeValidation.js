@@ -16,6 +16,8 @@ module.exports = async function isAdmin(req, res, next) {
   const name = req.body.name;
   if (!name) {
     errors.name = 'A name must be supplied';
+  } else if (typeof name !== 'string') {
+    errors.name = 'The supplied name must be a string';
   } else if (name.length > 20) {
     errors.name = 'The supplied name must be <= 20 characters long';
   } else {
@@ -23,15 +25,19 @@ module.exports = async function isAdmin(req, res, next) {
       .split(' ')
       .map(word => word[0].toUpperCase() + word.slice(1))
       .join(' ');
-    try {
-      const doc = await Coffee.findOne({name: titleCaseName}).exec();
-      if (doc) {
-        errors.name = 'A coffee with this name already exists';
-      } else {
-        coffeeObject.name = titleCaseName;
+    if (req.method === 'POST') {
+      try {
+        const doc = await Coffee.findOne({name: titleCaseName}).exec();
+        if (doc) {
+          errors.name = 'A coffee with this name already exists';
+        } else {
+          coffeeObject.name = titleCaseName;
+        }
+      } catch(err) {
+        throw err;
       }
-    } catch(err) {
-      throw err;
+    } else {
+      coffeeObject.name = titleCaseName;
     }
   }
 
@@ -65,12 +71,14 @@ module.exports = async function isAdmin(req, res, next) {
   const price = req.body.price;
   if (!price) {
     errors.price = 'A price must be supplied';
-  } else if (isNaN(price)) {
+  } else if (typeof price !== 'number') {
     errors.price = 'The supplied price must be a number';
+  // } else if (isNaN(price)) {
+  //   errors.price = 'The supplied price must be a number';
   } else if (price < 0 || price > 30) {
     errors.price = 'The price must be a number between 0 and 30';
   } else {
-    const splitPrice = price.split('.');
+    const splitPrice = String(price).split('.');
     if (splitPrice.length > 1) {
       if (splitPrice[1].length > 2) {
         errors.price = 'The price must be a number with 2 decimal places or less';
@@ -94,6 +102,8 @@ module.exports = async function isAdmin(req, res, next) {
   const descriptor1 = req.body.descriptor1;
   if (!descriptor1) {
     errors.descriptor1 = '3 descriptors must be supplied';
+  } else if (typeof descriptor1 !== 'string') {
+    errors.descriptor1 = 'The supplied descriptor must be a string';
   } else if (descriptor1.length > 15) {
     errors.descriptor1 = 'The supplied descriptor must be <= 15 characters long';
   } else if (descriptor1.match(/[^\p{L} -]+/gu)) {
@@ -109,6 +119,8 @@ module.exports = async function isAdmin(req, res, next) {
   const descriptor2 = req.body.descriptor2;
   if (!descriptor2) {
     errors.descriptor2 = '3 descriptors must be supplied';
+  } else if (typeof descriptor2 !== 'string') {
+    errors.descriptor2 = 'The supplied descriptor must be a string';
   } else if (descriptor2.length > 15) {
     errors.descriptor2 = 'The supplied descriptor must be <= 15 characters long';
   } else if (descriptor2.match(/[^\p{L} -]+/gu)) {
@@ -124,6 +136,8 @@ module.exports = async function isAdmin(req, res, next) {
   const descriptor3 = req.body.descriptor3;
   if (!descriptor3) {
     errors.descriptor3 = '3 descriptors must be supplied';
+  } else if (typeof descriptor3 !== 'string') {
+    errors.descriptor3 = 'The supplied descriptor must be a string';
   } else if (descriptor3.length > 15) {
     errors.descriptor3 = 'The supplied descriptor must be <= 15 characters long';
   } else if (descriptor3.match(/[^\p{L} -]+/gu)) {
@@ -139,6 +153,8 @@ module.exports = async function isAdmin(req, res, next) {
   const description = req.body.description;
   if (!description) {
     errors.description = 'A description must be supplied';
+  } else if (typeof description !== 'string') {
+    errors.description = 'The supplied description must be a string';
   } else {
     coffeeObject.description = description;
   }

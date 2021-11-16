@@ -14,7 +14,7 @@ const NON_ADMIN_PASSWORD = process.env['NON_ADMIN_PASSWORD'];
 const ADMIN_USERNAME = process.env['ADMIN_USERNAME'];
 const ADMIN_PASSWORD = process.env['ADMIN_PASSWORD'];
 
-suite('Adding Coffees', function() {
+suite('Coffee tests', function() {
   this.timeout(3000);
 
   const idealCoffeeObject = {
@@ -60,7 +60,7 @@ suite('Adding Coffees', function() {
       chai
         .request(app)
         .post('/api/coffee')
-        .type('form')
+        // .type('form')
         .send(idealCoffeeObject)
         .end(function (err, res) {
           assert.isNull(err);
@@ -82,7 +82,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send(idealCoffeeObject)
             .end(function (err, res) {
               assert.isNull(err);
@@ -105,7 +105,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send(idealCoffeeObject)
             .end(function (err, res) {
               assert.isNull(err);
@@ -132,7 +132,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send(lowerCaseCoffeeObject)
             .end(function (err, res) {
               assert.isNull(err);
@@ -162,7 +162,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, name: 'Bulessa'})
             .end(function (err, res) {
               assert.isNull(err);
@@ -185,7 +185,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, name: undefined})
             .end(function (err, res) {
               assert.isNull(err);
@@ -208,7 +208,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, name: 'this is a test name that is clearly way too long for a coffee'})
             .end(function (err, res) {
               assert.isNull(err);
@@ -217,6 +217,29 @@ suite('Adding Coffees', function() {
               assert.propertyVal(res.body, 'status', 'fail', 'Response body should contain the property "status", which should be equal to "fail"');
               assert.property(res.body, 'data', 'Response body should contain the property "data"');
               assert.nestedPropertyVal(res.body, 'data.name', 'The supplied name must be <= 20 characters long', 'Response body should contain the nested property "data.name", which should be equal to "The supplied name must be < 20 characters long"');
+              done();
+            });
+        });
+    });
+
+    test("Cannot add a coffee with a name that is not a string", function(done) {
+      agent
+        .post('/login')
+        .send({
+          email: ADMIN_USERNAME,
+          password: ADMIN_PASSWORD
+        })
+        .end(function(err, res) {
+          agent.post('/api/coffee')
+            // .type('form')
+            .send({...idealCoffeeObject, name: 5})
+            .end(function (err, res) {
+              assert.isNull(err);
+              assert.strictEqual(res.status, 400, 'Response should be sent with a 400 HTTP status');
+              assert.isObject(res.body, 'Response body should be an object');
+              assert.propertyVal(res.body, 'status', 'fail', 'Response body should contain the property "status", which should be equal to "fail"');
+              assert.property(res.body, 'data', 'Response body should contain the property "data"');
+              assert.nestedPropertyVal(res.body, 'data.name', 'The supplied name must be a string', 'Response body should contain the nested property "data.name", which should be equal to "The supplied name must be a string');
               done();
             });
         });
@@ -235,7 +258,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, continent: 'Europe'})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -258,7 +281,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, continent: undefined})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -284,7 +307,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, country: 'this is not a country'})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -307,7 +330,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, country: undefined})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -333,7 +356,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, process: 'this is not a process'})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -356,7 +379,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, process: undefined})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -382,7 +405,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, roast: 'this is not a roast'})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -405,7 +428,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, roast: undefined})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -432,7 +455,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, price: 1500})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -455,7 +478,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, price: 7.546})
             .end(function (err, res) {
               assert.isNull(err);
@@ -478,7 +501,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, price: undefined})
             .end(function (err, res) {
               assert.isNull(err);
@@ -492,7 +515,7 @@ suite('Adding Coffees', function() {
         });
     });
 
-    test("Cannot add a coffee with a non-numeric price", function(done) {
+    test("Cannot add a coffee with a price that is not a number", function(done) {
       agent
         .post('/login')
         .send({
@@ -501,8 +524,8 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
-            .send({...idealCoffeeObject, price: 'seven fifty'})
+            // .type('form')
+            .send({...idealCoffeeObject, price: '7.5'})
             .end(function (err, res) {
               assert.isNull(err);
               assert.strictEqual(res.status, 400, 'Response should be sent with a 400 HTTP status');
@@ -527,7 +550,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, descriptor1: 'this is a test descriptor that is clearly way too long for a coffee'})
             .end(function (err, res) {
               assert.isNull(err);
@@ -550,7 +573,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, descriptor1: '£$@%&#*'})
             .end(function (err, res) {
               assert.isNull(err);
@@ -559,6 +582,29 @@ suite('Adding Coffees', function() {
               assert.propertyVal(res.body, 'status', 'fail', 'Response body should contain the property "status", which should be equal to "fail"');
               assert.property(res.body, 'data', 'Response body should contain the property "data"');
               assert.nestedPropertyVal(res.body, 'data.descriptor1', 'The supplied descriptor contains invalid characters', 'Response body should contain the nested property "data.descriptor1", which should be equal to "The supplied descriptor contains invalid characters"');
+              done();
+            });
+        });
+    });
+
+    test("Cannot add a coffee with a descriptor that is not a string", function(done) {
+      agent
+        .post('/login')
+        .send({
+          email: ADMIN_USERNAME,
+          password: ADMIN_PASSWORD
+        })
+        .end(function(err, res) {
+          agent.post('/api/coffee')
+            // .type('form')
+            .send({...idealCoffeeObject, descriptor1: 5})
+            .end(function (err, res) {
+              assert.isNull(err);
+              assert.strictEqual(res.status, 400, 'Response should be sent with a 400 HTTP status');
+              assert.isObject(res.body, 'Response body should be an object');
+              assert.propertyVal(res.body, 'status', 'fail', 'Response body should contain the property "status", which should be equal to "fail"');
+              assert.property(res.body, 'data', 'Response body should contain the property "data"');
+              assert.nestedPropertyVal(res.body, 'data.descriptor1', 'The supplied descriptor must be a string', 'Response body should contain the nested property "data.descriptor1", which should be equal to "The supplied descriptor must be a string');
               done();
             });
         });
@@ -573,7 +619,7 @@ suite('Adding Coffees', function() {
           })
           .end(function(err, res) {
             agent.post('/api/coffee')
-              .type('form')
+              // .type('form')
               .send({...idealCoffeeObject, descriptor1: undefined})
               .end(function (err, res) {
                 assert.isNull(err);
@@ -590,6 +636,29 @@ suite('Adding Coffees', function() {
 
 
   suite('Description tests', function() {
+    test("Cannot add a coffee with a description that is not a string", function(done) {
+      agent
+        .post('/login')
+        .send({
+          email: ADMIN_USERNAME,
+          password: ADMIN_PASSWORD
+        })
+        .end(function(err, res) {
+          agent.post('/api/coffee')
+            // .type('form')
+            .send({...idealCoffeeObject, description: 5})
+            .end(function (err, res) {
+              assert.isNull(err);
+              assert.strictEqual(res.status, 400, 'Response should be sent with a 400 HTTP status');
+              assert.isObject(res.body, 'Response body should be an object');
+              assert.propertyVal(res.body, 'status', 'fail', 'Response body should contain the property "status", which should be equal to "fail"');
+              assert.property(res.body, 'data', 'Response body should contain the property "data"');
+              assert.nestedPropertyVal(res.body, 'data.description', 'The supplied description must be a string', 'Response body should contain the nested property "data.description", which should be equal to "The supplied description must be a string');
+              done();
+            });
+        });
+    });
+
     test("Cannot add a coffee with no description", function(done) {
       agent
         .post('/login')
@@ -599,7 +668,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({...idealCoffeeObject, description: undefined})
             .end(function (err, res) {
               assert.isNull(err);
@@ -625,7 +694,7 @@ suite('Adding Coffees', function() {
         })
         .end(function(err, res) {
           agent.post('/api/coffee')
-            .type('form')
+            // .type('form')
             .send({})
             .end(function (err, res) {
               assert.isNull(err);
