@@ -1,21 +1,8 @@
 const passport = require("passport");
-// const bcrypt = require("bcryptjs");
-const User = require("../models/user");
-const userValidation = require("../middleware/userValidation");
 
 module.exports = function (app) {
-  app.post("/api/users", userValidation, (req, res) => {
-    const newUser = User(req.userObject);
-    newUser.save((err, user) => {
-      if (err) throw err;
-      res.send({
-        status: "success",
-        data: null,
-      });
-    });
-  });
-
-  app.get("/user", (req, res) => {
+  // app.get("/user", (req, res) => {
+  app.get("/api/auth/currentuser", (req, res) => {
     console.log(req.user);
     if (req.user) {
       res.send(req.user);
@@ -24,7 +11,8 @@ module.exports = function (app) {
     }
   });
 
-  app.post("/login", (req, res, next) => {
+  // app.post("/login", (req, res, next) => {
+  app.post("/api/auth/login", (req, res, next) => {
     passport.authenticate("local", (err, user, info) => {
       if (err) throw err;
       if (!user) res.send("No User Exists");
@@ -39,7 +27,8 @@ module.exports = function (app) {
     })(req, res, next);
   });
 
-  app.get("/logout", (req, res) => {
+  // app.get("/logout", (req, res) => {
+  app.post("/api/auth/logout", (req, res) => {
     req.logout();
     res.send({ loggedOut: true });
   });

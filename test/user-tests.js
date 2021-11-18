@@ -27,19 +27,20 @@ suite("User tests", function () {
   suite("Creating users", function () {
     suite("Valid submission", function () {
       test("Can add a user with all fields filled out correctly", function (done) {
-        chai
-          .request(app)
-          .post("/api/users/")
-          .send(idealUserObject)
-          .end(function (err, res) {
-            assert.isNull(err);
-            assert.strictEqual(res.status, 200);
-            assert.isObject(res.body);
-            assert.propertyVal(res.body, "status", "success");
-            assert.property(res.body, "data");
-            assert.nestedPropertyVal(res.body, "data", null);
-            done();
-          });
+        assert.fail();
+        // chai
+        //   .request(app)
+        //   .post("/api/users/")
+        //   .send(idealUserObject)
+        //   .end(function (err, res) {
+        //     assert.isNull(err);
+        //     assert.strictEqual(res.status, 200);
+        //     assert.isObject(res.body);
+        //     assert.propertyVal(res.body, "status", "success");
+        //     assert.property(res.body, "data");
+        //     assert.nestedPropertyVal(res.body, "data", null);
+        //     done();
+        //   });
       });
     });
 
@@ -351,6 +352,43 @@ suite("User tests", function () {
               res.body,
               "data.lastName",
               "The supplied name must be <= 20 characters long"
+            );
+            done();
+          });
+      });
+    });
+
+    suite("Combination tests", function () {
+      test("Multiple validation errors are returned", function (done) {
+        chai
+          .request(app)
+          .post("/api/users/")
+          .send({})
+          .end(function (err, res) {
+            assert.isNull(err);
+            assert.strictEqual(res.status, 400);
+            assert.isObject(res.body);
+            assert.propertyVal(res.body, "status", "fail");
+            assert.property(res.body, "data");
+            assert.nestedPropertyVal(
+              res.body,
+              "data.firstName",
+              "A first name must be supplied"
+            );
+            assert.nestedPropertyVal(
+              res.body,
+              "data.lastName",
+              "A last name must be supplied"
+            );
+            assert.nestedPropertyVal(
+              res.body,
+              "data.email",
+              "An email address must be supplied"
+            );
+            assert.nestedPropertyVal(
+              res.body,
+              "data.password",
+              "A password must be supplied"
             );
             done();
           });

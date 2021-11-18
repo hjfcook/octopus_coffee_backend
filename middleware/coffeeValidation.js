@@ -1,6 +1,6 @@
-const Coffee = require('../models/coffee');
+const Coffee = require("../models/coffee");
 
-module.exports = async function isAdmin(req, res, next) {
+module.exports = async function coffeeValidation(req, res, next) {
   const errors = {};
   const coffeeObject = {
     name: undefined,
@@ -10,30 +10,32 @@ module.exports = async function isAdmin(req, res, next) {
     price: undefined,
     roast: undefined,
     descriptors: [],
-    description: undefined
+    description: undefined,
   };
 
   const name = req.body.name;
   if (!name) {
-    errors.name = 'A name must be supplied';
-  } else if (typeof name !== 'string') {
-    errors.name = 'The supplied name must be a string';
+    errors.name = "A name must be supplied";
+  } else if (typeof name !== "string") {
+    errors.name = "The supplied name must be a string";
   } else if (name.length > 20) {
-    errors.name = 'The supplied name must be <= 20 characters long';
+    errors.name = "The supplied name must be <= 20 characters long";
   } else {
-    const titleCaseName = name.toLowerCase()
-      .split(' ')
-      .map(word => word[0].toUpperCase() + word.slice(1))
-      .join(' ');
-    if (req.method === 'POST') {
+    const titleCaseName = name
+      .toLowerCase()
+      .replace(/ +(?= )/g, "")
+      .split(" ")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" ");
+    if (req.method === "POST") {
       try {
-        const doc = await Coffee.findOne({name: titleCaseName}).exec();
+        const doc = await Coffee.findOne({ name: titleCaseName }).exec();
         if (doc) {
-          errors.name = 'A coffee with this name already exists';
+          errors.name = "A coffee with this name already exists";
         } else {
           coffeeObject.name = titleCaseName;
         }
-      } catch(err) {
+      } catch (err) {
         throw err;
       }
     } else {
@@ -43,45 +45,48 @@ module.exports = async function isAdmin(req, res, next) {
 
   const continent = req.body.continent;
   if (!continent) {
-    errors.continent = 'A continent must be supplied';
+    errors.continent = "A continent must be supplied";
   } else if (acceptedContinents.indexOf(continent) === -1) {
-    errors.continent = 'The continent must be one of "N/A", "Africa", "Americas", or "Asia"';
+    errors.continent =
+      'The continent must be one of "N/A", "Africa", "Americas", or "Asia"';
   } else {
     coffeeObject.continent = continent;
   }
 
   const country = req.body.country;
   if (!country) {
-    errors.country = 'A country must be supplied';
+    errors.country = "A country must be supplied";
   } else if (acceptedCountries.indexOf(country) === -1) {
-    errors.country = 'The country supplied is not an accepted value';
+    errors.country = "The country supplied is not an accepted value";
   } else {
     coffeeObject.country = country;
   }
 
   const process = req.body.process;
   if (!process) {
-    errors.process = 'A process must be supplied';
+    errors.process = "A process must be supplied";
   } else if (acceptedProcesses.indexOf(process) === -1) {
-    errors.process = 'The process must be one of "N/A", "Honey", "Natural", "Pulped Natural", or "Washed"';
+    errors.process =
+      'The process must be one of "N/A", "Honey", "Natural", "Pulped Natural", or "Washed"';
   } else {
     coffeeObject.process = process;
   }
 
   const price = req.body.price;
   if (!price) {
-    errors.price = 'A price must be supplied';
-  } else if (typeof price !== 'number') {
-    errors.price = 'The supplied price must be a number';
-  // } else if (isNaN(price)) {
-  //   errors.price = 'The supplied price must be a number';
+    errors.price = "A price must be supplied";
+  } else if (typeof price !== "number") {
+    errors.price = "The supplied price must be a number";
+    // } else if (isNaN(price)) {
+    //   errors.price = 'The supplied price must be a number';
   } else if (price < 0 || price > 30) {
-    errors.price = 'The price must be a number between 0 and 30';
+    errors.price = "The price must be a number between 0 and 30";
   } else {
-    const splitPrice = String(price).split('.');
+    const splitPrice = String(price).split(".");
     if (splitPrice.length > 1) {
       if (splitPrice[1].length > 2) {
-        errors.price = 'The price must be a number with 2 decimal places or less';
+        errors.price =
+          "The price must be a number with 2 decimal places or less";
       } else {
         coffeeObject.price = price;
       }
@@ -92,69 +97,79 @@ module.exports = async function isAdmin(req, res, next) {
 
   const roast = req.body.roast;
   if (!roast) {
-    errors.roast = 'A roast must be supplied';
+    errors.roast = "A roast must be supplied";
   } else if (acceptedRoasts.indexOf(roast) === -1) {
-    errors.roast = 'The roast must be one of "N/A", "Light", "Medium", "Medium-dark", or "Dark"';
+    errors.roast =
+      'The roast must be one of "N/A", "Light", "Medium", "Medium-dark", or "Dark"';
   } else {
     coffeeObject.roast = roast;
   }
 
   const descriptor1 = req.body.descriptor1;
   if (!descriptor1) {
-    errors.descriptor1 = '3 descriptors must be supplied';
-  } else if (typeof descriptor1 !== 'string') {
-    errors.descriptor1 = 'The supplied descriptor must be a string';
+    errors.descriptor1 = "3 descriptors must be supplied";
+  } else if (typeof descriptor1 !== "string") {
+    errors.descriptor1 = "The supplied descriptor must be a string";
   } else if (descriptor1.length > 15) {
-    errors.descriptor1 = 'The supplied descriptor must be <= 15 characters long';
+    errors.descriptor1 =
+      "The supplied descriptor must be <= 15 characters long";
   } else if (descriptor1.match(/[^\p{L} -]+/gu)) {
-    errors.descriptor1 = 'The supplied descriptor contains invalid characters';
+    errors.descriptor1 = "The supplied descriptor contains invalid characters";
   } else {
-    const titleCaseName = descriptor1.toLowerCase()
-      .split(' ')
-      .map(word => word[0].toUpperCase() + word.slice(1))
-      .join(' ');
+    const titleCaseName = descriptor1
+      .toLowerCase()
+      .replace(/ +(?= )/g, "")
+      .split(" ")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" ");
     coffeeObject.descriptors.push(titleCaseName);
   }
 
   const descriptor2 = req.body.descriptor2;
   if (!descriptor2) {
-    errors.descriptor2 = '3 descriptors must be supplied';
-  } else if (typeof descriptor2 !== 'string') {
-    errors.descriptor2 = 'The supplied descriptor must be a string';
+    errors.descriptor2 = "3 descriptors must be supplied";
+  } else if (typeof descriptor2 !== "string") {
+    errors.descriptor2 = "The supplied descriptor must be a string";
   } else if (descriptor2.length > 15) {
-    errors.descriptor2 = 'The supplied descriptor must be <= 15 characters long';
+    errors.descriptor2 =
+      "The supplied descriptor must be <= 15 characters long";
   } else if (descriptor2.match(/[^\p{L} -]+/gu)) {
-    errors.descriptor2 = 'The supplied descriptor contains invalid characters';
+    errors.descriptor2 = "The supplied descriptor contains invalid characters";
   } else {
-    const titleCaseName = descriptor2.toLowerCase()
-      .split(' ')
-      .map(word => word[0].toUpperCase() + word.slice(1))
-      .join(' ');
+    const titleCaseName = descriptor2
+      .toLowerCase()
+      .replace(/ +(?= )/g, "")
+      .split(" ")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" ");
     coffeeObject.descriptors.push(titleCaseName);
   }
 
   const descriptor3 = req.body.descriptor3;
   if (!descriptor3) {
-    errors.descriptor3 = '3 descriptors must be supplied';
-  } else if (typeof descriptor3 !== 'string') {
-    errors.descriptor3 = 'The supplied descriptor must be a string';
+    errors.descriptor3 = "3 descriptors must be supplied";
+  } else if (typeof descriptor3 !== "string") {
+    errors.descriptor3 = "The supplied descriptor must be a string";
   } else if (descriptor3.length > 15) {
-    errors.descriptor3 = 'The supplied descriptor must be <= 15 characters long';
+    errors.descriptor3 =
+      "The supplied descriptor must be <= 15 characters long";
   } else if (descriptor3.match(/[^\p{L} -]+/gu)) {
-    errors.descriptor3 = 'The supplied descriptor contains invalid characters';
+    errors.descriptor3 = "The supplied descriptor contains invalid characters";
   } else {
-    const titleCaseName = descriptor3.toLowerCase()
-      .split(' ')
-      .map(word => word[0].toUpperCase() + word.slice(1))
-      .join(' ');
+    const titleCaseName = descriptor3
+      .toLowerCase()
+      .replace(/ +(?= )/g, "")
+      .split(" ")
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(" ");
     coffeeObject.descriptors.push(titleCaseName);
   }
 
   const description = req.body.description;
   if (!description) {
-    errors.description = 'A description must be supplied';
-  } else if (typeof description !== 'string') {
-    errors.description = 'The supplied description must be a string';
+    errors.description = "A description must be supplied";
+  } else if (typeof description !== "string") {
+    errors.description = "The supplied description must be a string";
   } else {
     coffeeObject.description = description;
   }
@@ -165,19 +180,25 @@ module.exports = async function isAdmin(req, res, next) {
   } else {
     res.status(400).send({
       status: "fail",
-      data: errors
+      data: errors,
     });
   }
 };
 
 const acceptedContinents = ["N/A", "Africa", "Americas", "Asia"];
-const acceptedProcesses = ["N/A", "Honey", "Natural", "Pulped Natural", "Washed"];
+const acceptedProcesses = [
+  "N/A",
+  "Honey",
+  "Natural",
+  "Pulped Natural",
+  "Washed",
+];
 const acceptedRoasts = ["N/A", "Light", "Medium", "Medium-dark", "Dark"];
 const acceptedCountries = [
-  "N/A", 
-  "Afghanistan", 
-  "Åland Islands", 
-  "Albania", 
+  "N/A",
+  "Afghanistan",
+  "Åland Islands",
+  "Albania",
   "Algeria",
   "American Samoa",
   "Andorra",
@@ -418,5 +439,5 @@ const acceptedCountries = [
   "Western Sahara",
   "Yemen",
   "Zambia",
-  "Zimbabwe"
+  "Zimbabwe",
 ];
