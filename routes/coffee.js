@@ -3,78 +3,46 @@ const isAdmin = require('../middleware/isAdmin');
 const coffeeValidation = require('../middleware/coffeeValidation');
 
 module.exports = function(app) {
-    app.post('/api/coffee', isAdmin, coffeeValidation, (req, res) => {
-        const newCoffee = Coffee(req.coffeeObject);
-        newCoffee.save((err, coffee) => {
-            if (err) throw err;
-            res.send({
-              status: "success",
-              data: coffee
-            });
-        });
+  app.post('/api/coffee', isAdmin, coffeeValidation, (req, res) => {
+    const newCoffee = Coffee(req.coffeeObject);
+    newCoffee.save((err, coffee) => {
+      if (err) throw err;
+      res.send({
+        status: "success",
+        data: coffee
+      });
     });
+  });
 
-    app.get('/api/coffee', (req, res) => {
-        console.log(req.body);
-        Coffee.find({}, (err, coffees) => {
-            if (err) return console.error(err);
-            coffeeList = coffees.map(coffee => ({
-                _id: coffee._id,
-                name: coffee.name,
-                continent: coffee.continent,
-                country: coffee.country,
-                process: coffee.process,
-                price: coffee.price,
-                roast: coffee.roast,
-                description: coffee.description,
-                descriptors: coffee.descriptors
-            }));
-            res.send(coffeeList);
-        });
+  app.get('/api/coffee', (req, res) => {
+    Coffee.find({}, (err, coffees) => {
+      if (err) throw err;
+      res.send({
+        status: "success",
+        data: coffees
+      });
     });
+  });
 
-    app.put('/api/coffee/:id', isAdmin, coffeeValidation, (req, res) => {
-        const id = req.params.id;
-        // const name = req.body.name;
-        // const continent = req.body.continent;
-        // const country = req.body.country;
-        // const process = req.body.process;
-        // const price = req.body.price;
-        // const roast = req.body.roast;
-        // const description = req.body.description;
-        // const descriptor1 = req.body.descriptor1;
-        // const descriptor2 = req.body.descriptor2;
-        // const descriptor3 = req.body.descriptor3;
-        // const coffeeObject = {
-        //     name: name,
-        //     continent: continent,
-        //     country: country,
-        //     process: process,
-        //     price: price,
-        //     roast: roast,
-        //     description: description,
-        //     descriptors: [descriptor1, descriptor2, descriptor3]
-        // };
-        // Coffee.findByIdAndUpdate(id, coffeeObject, {new: true}, (err, coffee) => {
-        //     if (err) return console.error(err);
-        //     // if (err || !coffee) return console.error(err);
-        //     // res.send(coffeeObject);
-        //     res.send(coffee);
-        // });
-        Coffee.findByIdAndUpdate(id, req.coffeeObject, {new: true}, (err, coffee) => {
-            if (err) return console.error(err);
-            res.send({
-              status: "success",
-              data: coffee
-            });
-        });
+  app.put('/api/coffee/:id', isAdmin, coffeeValidation, (req, res) => {
+    const id = req.params.id;
+    Coffee.findByIdAndUpdate(id, req.coffeeObject, {new: true}, (err, coffee) => {
+      if (err) throw err;
+      res.send({
+        status: "success",
+        data: coffee
+      });
     });
+  });
 
-    app.delete('/api/coffee/:id', isAdmin, (req, res) => {
-        const id = req.params.id;
-        Coffee.findByIdAndDelete(id, (err, coffee) => {
-            if (err) return console.error(err);
-            res.send({deleted: true});
-        });
+  app.delete('/api/coffee/:id', isAdmin, (req, res) => {
+    const id = req.params.id;
+    Coffee.findByIdAndDelete(id, (err, coffee) => {
+      if (err) throw err;
+      res.send({
+        status: "success",
+        data: null
+      });
     });
+  });
 };
