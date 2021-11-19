@@ -11,8 +11,10 @@ const agent = chai.request.agent(app);
 
 const NON_ADMIN_USERNAME = process.env["NON_ADMIN_USERNAME"];
 const NON_ADMIN_PASSWORD = process.env["NON_ADMIN_PASSWORD"];
+const NON_ADMIN_ID = process.env["NON_ADMIN_ID"];
 const ADMIN_USERNAME = process.env["ADMIN_USERNAME"];
 const ADMIN_PASSWORD = process.env["ADMIN_PASSWORD"];
+const ADMIN_ID = process.env["ADMIN_ID"];
 
 suite("User tests", function () {
   this.timeout(3000);
@@ -398,13 +400,119 @@ suite("User tests", function () {
 
   suite("Reading users", function () {
     suite("Non-admin tests", function () {
-      test("Non-admin users can read their own details");
-      test("Non-admin users cannot read another user's details");
+      test("Non logged-in users cannot read another user's details", function (done) {
+        const id = NON_ADMIN_ID;
+        agent.get(`/api/users/${id}`).end(function (err, res) {
+          assert.isNull(err);
+          assert.strictEqual(res.status, 401);
+          assert.isObject(res.body);
+          assert.propertyVal(res.body, "status", "fail");
+          assert.nestedPropertyVal(
+            res.body,
+            "data.user",
+            "No user is currently logged in"
+          );
+          done();
+        });
+      });
+
+      test("Non-admin users can read their own details", function (done) {
+        agent
+          .post("/api/auth/login")
+          .send({
+            email: NON_ADMIN_USERNAME,
+            password: NON_ADMIN_PASSWORD,
+          })
+          .end(function (err, res) {
+            const id = NON_ADMIN_ID;
+            agent.get(`/api/users/${id}`).end(function (err, res) {
+              // console.log(res.body);
+              assert.isNull(err);
+              assert.strictEqual(res.status, 200);
+              assert.isObject(res.body);
+              assert.propertyVal(res.body, "status", "success");
+              assert.property(res.body, "data");
+              assert.nestedPropertyVal(
+                res.body,
+                "data.email",
+                NON_ADMIN_USERNAME
+              );
+              done();
+            });
+          });
+      });
+
+      test("Non-admin users cannot read another user's details", function (done) {
+        agent
+          .post("/api/auth/login")
+          .send({
+            email: NON_ADMIN_USERNAME,
+            password: NON_ADMIN_PASSWORD,
+          })
+          .end(function (err, res) {
+            const id = ADMIN_ID;
+            agent.get(`/api/users/${id}`).end(function (err, res) {
+              assert.isNull(err);
+              assert.strictEqual(res.status, 403);
+              assert.isObject(res.body);
+              assert.propertyVal(res.body, "status", "fail");
+              assert.nestedPropertyVal(
+                res.body,
+                "data.user",
+                "The current user does not have permission to complete this action"
+              );
+              done();
+            });
+          });
+      });
     });
 
     suite("Admin tests", function () {
-      test("Admins can read their own details");
-      test("Admins can read another user's details");
+      test("Admins can read their own details", function (done) {
+        agent
+          .post("/api/auth/login")
+          .send({
+            email: ADMIN_USERNAME,
+            password: ADMIN_PASSWORD,
+          })
+          .end(function (err, res) {
+            const id = ADMIN_ID;
+            agent.get(`/api/users/${id}`).end(function (err, res) {
+              assert.isNull(err);
+              assert.strictEqual(res.status, 200);
+              assert.isObject(res.body);
+              assert.propertyVal(res.body, "status", "success");
+              assert.property(res.body, "data");
+              assert.nestedPropertyVal(res.body, "data.email", ADMIN_USERNAME);
+              done();
+            });
+          });
+      });
+
+      test("Admins can read another user's details", function (done) {
+        agent
+          .post("/api/auth/login")
+          .send({
+            email: ADMIN_USERNAME,
+            password: ADMIN_PASSWORD,
+          })
+          .end(function (err, res) {
+            const id = NON_ADMIN_ID;
+            agent.get(`/api/users/${id}`).end(function (err, res) {
+              assert.isNull(err);
+              assert.strictEqual(res.status, 200);
+              assert.isObject(res.body);
+              assert.propertyVal(res.body, "status", "success");
+              assert.property(res.body, "data");
+              assert.nestedPropertyVal(
+                res.body,
+                "data.email",
+                NON_ADMIN_USERNAME
+              );
+              done();
+            });
+          });
+      });
     });
   });
 
