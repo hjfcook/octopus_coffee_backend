@@ -78,10 +78,7 @@ module.exports = async function userValidation(req, res, next) {
   } else if (password.length < 8) {
     errors.password = "The supplied password must be >= 8 characters long";
   } else {
-    // userObject.password = password;
-    userObject.password = async () => {
-      await bcrypt.hash(password, 10);
-    };
+    userObject.password = await bcrypt.hash(password, 10);
   }
 
   if (Object.keys(errors).length === 0) {
