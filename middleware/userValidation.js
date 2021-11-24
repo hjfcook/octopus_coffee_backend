@@ -56,29 +56,47 @@ module.exports = async function userValidation(req, res, next) {
   } else if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
     errors.email = "The supplied email address must be valid";
   } else {
-    //! may need to check for post requests to allow edits
     const lowerCaseEmail = email.toLowerCase();
-    try {
-      const doc = await User.findOne({ email: lowerCaseEmail }).exec();
-      if (doc) {
-        errors.email = "The supplied email address has already been registered";
-      } else {
-        userObject.email = lowerCaseEmail;
+    if (req.method === "POST") {
+      try {
+        const doc = await User.findOne({ email: lowerCaseEmail }).exec();
+        if (doc) {
+          errors.email =
+            "The supplied email address has already been registered";
+        } else {
+          userObject.email = lowerCaseEmail;
+        }
+      } catch (err) {
+        throw err;
       }
-    } catch (err) {
-      throw err;
+    } else {
+      userObject.email = lowerCaseEmail;
     }
   }
 
   const password = req.body.password;
-  if (!password) {
-    errors.password = "A password must be supplied";
-  } else if (typeof password !== "string") {
-    errors.password = "The supplied password must be a string";
-  } else if (password.length < 8) {
-    errors.password = "The supplied password must be >= 8 characters long";
-  } else {
-    userObject.password = await bcrypt.hash(password, 10);
+  if (req.method === "POST") {
+    if (!password) {
+      errors.password = "A password must be supplied";
+    } else if (typeof password !== "string") {
+      errors.password = "The supplied password must be a string";
+    } else if (password.length < 8) {
+      errors.password = "The supplied password must be >= 8 characters long";
+    } else {
+      userObject.password = await bcrypt.hash(password, 10);
+    }
+  }
+
+  console.log(req.body);
+  const admin = req.body.admin;
+  if (req.method === "PUT") {
+    if (typeof admin === "undefined") {
+      errors.admin = "Admin status must be supplied";
+    } else if (typeof admin !== "boolean") {
+      errors.password = "Admin status must be true or false";
+    } else {
+      userObject.admin = admin;
+    }
   }
 
   if (Object.keys(errors).length === 0) {

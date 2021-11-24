@@ -1,4 +1,5 @@
 module.exports = function isLoggedIn(req, res, next) {
+  console.log(req.user);
   if (req.hasOwnProperty("user")) {
     next();
   } else {

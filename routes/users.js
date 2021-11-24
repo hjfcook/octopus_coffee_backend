@@ -16,51 +16,58 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/users/:id", isLoggedIn, isOwnUserOrAdmin, (req, res) => {
-    User.findById(req.params.id, (err, user) => {
+  app.get("/api/users", isLoggedIn, isAdmin, (req, res) => {
+    // app.get("/api/users", (req, res) => {
+    User.find({}, (err, users) => {
       if (err) throw err;
-      const userResponse = user;
-      userResponse.password = undefined;
       res.send({
         status: "success",
-        data: userResponse,
+        data: users.map((user) => {
+          user.password = undefined;
+          return user;
+        }),
       });
     });
   });
 
-  // app.put(
-  //   "/api/users/:id",
-  //   isLoggedIn,
-  //   isOwnUserOrAdmin,
-  //   userValidation,
-  //   (req, res) => {
-  //     const id = req.params.id;
-  //     User.findByIdAndUpdate(
-  //       id,
-  //       req.coffeeObject,
-  //       { new: true },
-  //       (err, user) => {
-  //         const userResponse = user;
-  //         userResponse.password = undefined;
-  //         if (err) throw err;
-  //         res.send({
-  //           status: "success",
-  //           data: user,
-  //           // ? does this really need to return the user?
-  //         });
-  //       }
-  //     );
-  //   }
-  // );
+  app.get("/api/users/:id", isLoggedIn, isOwnUserOrAdmin, (req, res) => {
+    User.findById(req.params.id, (err, user) => {
+      if (err) throw err;
+      user.password = undefined;
+      res.send({
+        status: "success",
+        data: user,
+      });
+    });
+  });
 
-  // app.delete("/api/users/:id", isLoggedIn, isOwnUserOrAdmin, (req, res) => {
-  //   const id = req.params.id;
-  //   User.findByIdAndDelete(id, (err, user) => {
-  //     if (err) throw err;
-  //     res.send({
-  //       status: "success",
-  //       data: null,
-  //     });
-  //   });
-  // });
+  app.put(
+    "/api/users/:id",
+    isLoggedIn,
+    isOwnUserOrAdmin,
+    userValidation,
+    (req, res) => {
+      const id = req.params.id;
+      User.findByIdAndUpdate(id, req.userObject, { new: true }, (err, user) => {
+        if (err) throw err;
+        user.password = undefined;
+        res.send({
+          status: "success",
+          data: user,
+          // ? does this really need to return the user?
+        });
+      });
+    }
+  );
+
+  app.delete("/api/users/:id", isLoggedIn, isOwnUserOrAdmin, (req, res) => {
+    const id = req.params.id;
+    User.findByIdAndDelete(id, (err, user) => {
+      if (err) throw err;
+      res.send({
+        status: "success",
+        data: null,
+      });
+    });
+  });
 };
