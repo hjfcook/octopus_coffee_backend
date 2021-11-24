@@ -93,7 +93,7 @@ module.exports = async function userValidation(req, res, next) {
     if (typeof admin === "undefined") {
       errors.admin = "Admin status must be supplied";
     } else if (typeof admin !== "boolean") {
-      errors.password = "Admin status must be true or false";
+      errors.admin = "Admin status must be true or false";
     } else {
       userObject.admin = admin;
     }
