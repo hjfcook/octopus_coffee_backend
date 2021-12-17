@@ -36,6 +36,7 @@ module.exports = function (passport) {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        address: user.address,
         admin: user.admin,
       };
       callback(err, userInformation);

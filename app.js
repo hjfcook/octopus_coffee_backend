@@ -9,14 +9,12 @@ const passport = require("passport");
 const passportLocal = require("passport-local").Strategy;
 // const bcrypt = require('bcryptjs');
 const session = require("express-session");
-
-const stripe = require("stripe")(
-  "sk_test_51K4MEJIYNYXoDTIhLNxrv2jOL633FiZR39zVwODArdrK8qE0wSse9qZBsBZqFhM3VfoCw4esC0uBvJTy3Ddlp3RA00QlLXfeN3"
-);
+const { log } = require("console");
 
 var app = express();
 
 require("dotenv").config();
+
 const MONGO_URI = process.env["MONGO_URI"];
 mongoose.connect(
   MONGO_URI,
@@ -29,11 +27,22 @@ mongoose.connect(
   }
 );
 
+const STRIPE_ENDPOINT_SECRET = process.env["STRIPE_ENDPOINT_SECRET"];
+const STRIPE_SECRET_KEY = process.env["STRIPE_SECRET_KEY"];
+const stripe = require("stripe")(STRIPE_SECRET_KEY);
+
 // ----------------- MIDDLEWARE -------------------------
 if (process.env.NODE_ENV !== "test") {
   app.use(logger("dev"));
 }
-app.use(express.json());
+// app.use(express.json());
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf;
+    },
+  })
+);
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
@@ -82,9 +91,42 @@ app.post("/create-checkout-session", async (req, res) => {
     // success_url: `${DOMAIN}/?success=true`,
     success_url: `${DOMAIN}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${DOMAIN}/cart`,
+    metadata: req.user,
   });
   res.send(session);
 });
+
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const payload = req.rawBody;
+    const sig = req.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        payload,
+        sig,
+        STRIPE_ENDPOINT_SECRET
+      );
+    } catch (err) {
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+      const items = await stripe.checkout.sessions.listLineItems(session.id, {
+        limit: 100,
+      });
+      console.log(session);
+      console.log(items);
+    }
+
+    res.status(200);
+  }
+);
 
 app.get("/order/success", async (req, res) => {
   try {
