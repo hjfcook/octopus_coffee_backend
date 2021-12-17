@@ -96,6 +96,7 @@ app.post("/create-checkout-session", async (req, res) => {
   res.send(session);
 });
 
+const Order = require("./models/order");
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
@@ -120,8 +121,32 @@ app.post(
       const items = await stripe.checkout.sessions.listLineItems(session.id, {
         limit: 100,
       });
-      console.log(session);
-      console.log(items);
+      // console.log(session);
+      // console.log(items);
+      const newOrder = Order({
+        customer: {
+          firstName: session.metadata.firstName,
+          lastName: session.metadata.lastName,
+          email: session.metadata.email,
+          address: session.metadata.address,
+        },
+        items: items.data.map((item) => {
+          return {
+            name: item.description,
+            price: item.price.unit_amount / 100,
+            quantity: item.quantity,
+          };
+        }),
+        date: new Date(),
+        total: session.amount_total / 100,
+      });
+      newOrder.save((err, order) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(order);
+        }
+      });
     }
 
     res.status(200);
